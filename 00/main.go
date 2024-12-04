@@ -9,33 +9,31 @@ type api struct {
 	addr string
 }
 
-func (s *api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		switch r.URL.Path {
-		case "/":
-			w.Write([]byte("Home page: /"))
-			return
-		case "/about":
-			w.Write([]byte("About Page: /about"))
-			return
-		default:
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Not Found"))
-			return
-		}
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("Method Not Allowed"))
-		return
-	}
+func (a *api) GetHomePage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Home Page"))
+}
+func (a *api) GetAboutPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("About Page"))
 }
 
 func main() {
 	api := &api{
 		addr: ":8080",
 	}
-	srv := &http.Server{Addr: api.addr, Handler: api}
+	// Initialize the ServeMux
+	mux := http.NewServeMux()
+	srv := &http.Server{
+		Addr:    api.addr,
+		Handler: mux,
+	}
+
+	mux.HandleFunc("GET /", api.GetHomePage)
+	mux.HandleFunc("GET /about", api.GetAboutPage)
+
 	log.Fatal(srv.ListenAndServe())
 
 }
