@@ -5,14 +5,24 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"log"
 	"net/http"
+	"time"
+	"web_study/01/internal/store"
 )
 
 type application struct {
 	config config
+	store  store.Storage
 }
 
 type config struct {
 	addr string
+	db   dbConfig
+}
+type dbConfig struct {
+	addr        string
+	maxOpenCons int
+	maxIdleCons int
+	maxIdleTime time.Duration
 }
 
 func (app *application) mount() *chi.Mux {
